@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>電子電気回路 学習アプリ（解説付き）</title>
+  <style>
+    body {
+      background-color: #fff8dc;
+      font-family: 'Arial', sans-serif;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      color: #333;
+    }
+    .content {
+      margin-top: 20px;
+    }
+    .quiz-section {
+      margin-bottom: 30px;
+      padding: 15px;
+      background: #ffffe0;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .result {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .explanation {
+      margin-top: 8px;
+      font-size: 0.9em;
+      color: #555;
+      background-color: #f0f0f0;
+      padding: 10px;
+      border-radius: 6px;
+      display: none;
+    }
+    .highlight {
+      background-color: #fffd9e;
+      font-weight: bold;
+    }
+    .level {
+      margin-top: 10px;
+      margin-bottom: 20px;
+      padding: 10px;
+      background: #f5f5dc;
+      border-radius: 6px;
+    }
+    button.show-expl {
+      margin-left: 10px;
+      font-size: 0.8em;
+      cursor: pointer;
+      color: #0066cc;
+      background: none;
+      border: none;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔌 電子電気回路 学習アプリ（解説付き）</h1>
+  <p>基礎から応用まで、しっかり理解していきましょう！💡</p>
+
+  <div class="content">
+    <h2>📘 基本用語と公式</h2>
+    <ul>
+      <li><span class="highlight">オームの法則</span>: V = I × R</li>
+      <li><span class="highlight">電力</span>: P = V × I</li>
+      <li><span class="highlight">抵抗の直列接続</span>: R合 = R1 + R2 + ...</li>
+      <li><span class="highlight">抵抗の並列接続</span>: 1/R合 = 1/R1 + 1/R2 + ...</li>
+      <li><span class="highlight">ホイートストンブリッジ</span>: R1/R2 = R3/R4 のとき中央に電流が流れない</li>
+    </ul>
+  </div>
+
+  <div id="quiz" class="content">
+    <h2>📝 レベル別 練習問題</h2>
+
+    <!-- オームの法則 -->
+    <div class="quiz-section">
+      <h3>⚡ オームの法則</h3>
+      <div class="level"><strong>初級:</strong>
+        <p>Q1: 電圧 10V、抵抗 5Ω のとき、電流は？</p>
+        <input type="number" id="ohm1"><button onclick="checkAns('ohm1', 2, 'r_ohm1', 'e_ohm1')">答え合わせ</button>
+        <button class="show-expl" onclick="toggleExpl('e_ohm1')">解説を見る</button>
+        <div class="result" id="r_ohm1"></div>
+        <div class="explanation" id="e_ohm1">オームの法則より、<br>電流 I = 電圧 V ÷ 抵抗 R = 10 ÷ 5 = 2A です。</div>
+
+        <p>Q2: 電圧 12V、電流 3A のとき、抵抗は？</p>
+        <input type="number" id="ohm2"><button onclick="checkAns('ohm2', 4, 'r_ohm2', 'e_ohm2')">答え合わせ</button>
+        <button class="show-expl" onclick="toggleExpl('e_ohm2')">解説を見る</button>
+        <div class="result" id="r_ohm2"></div>
+        <div class="explanation" id="e_ohm2">オームの法則より、<br>抵抗 R = 電圧 V ÷ 電流 I = 12 ÷ 3 = 4Ω です。</div>
+      </div>
+
+      <div class="level"><strong>中級:</strong>
+        <p>Q3: 電力が60Wで、電流が3Aのとき、電圧は？</p>
+        <input type="number" id="ohm3"><button onclick="checkAns('ohm3', 20, 'r_ohm3', 'e_ohm3')">答え合わせ</button>
+        <button class="show-expl" onclick="toggleExpl('e_ohm3')">解説を見る</button>
+        <div class="result" id="r_ohm3"></div>
+        <div class="explanation" id="e_ohm3">電力 P = 電圧 V × 電流 I なので、<br>電圧 V = P ÷ I = 60 ÷ 3 = 20V です。</div>
+      </div>
+
+      <div class="level"><strong>上級:</strong>
+        <p>Q4: 抵抗10Ωの抵抗に5Aの電流が流れたとき、消費される電力は？</p>
+        <input type="number" id="ohm4"><button onclick="checkAns('ohm4', 250, 'r_ohm4', 'e_ohm4')">答え合わせ</button>
+        <button class="show-expl" onclick="toggleExpl('e_ohm4')">解説を見る</button>
+        <div class="result" id="r_ohm4"></div>
+        <div class="explanation" id="e_ohm4">電力 P = I² × R なので、<br>P = 5² × 10 = 25 × 10 = 250W です。</div>
+      </div>
+    </div>
+
+    <!-- ホイートストンブリッジ -->
+    <div class="quiz-section">
+      <h3>🔗 ホイートストンブリッジ</h3>
+      <div class="level"><strong>初級:</strong>
+        <p>Q5: 電流が中央に流れない条件は？</p>
+        <label><input type="radio" name="wb1" value="0"> R1 + R4 = R2 + R3</label><br>
+        <label><input type="radio" name="wb1" value="1"> R1/R2 = R3/R4</label><br>
+        <label><input type="radio" name="wb1" value="0"> R1 × R2 = R3 × R4</label><br>
+        <button onclick="checkRadio('wb1', 'r_wb1', 'e_wb1')">答え合わせ</button>
+        <button class="show-expl" onclick="toggleExpl('e_wb1')">解説を見る</button>
+        <div class="result" id="r_wb1"></div>
+        <div class="explanation" id="e_wb1">ホイートストンブリッジでは、<br>中央に電流が流れないためには R1/R2 = R3/R4 の関係が成り立ちます。</div>
+      </div>
+    </div>
+
+    <!-- イオン式 -->
+    <div class="quiz-section">
+      <h3>🧪 イオン式</h3>
+      <div class="level"><strong>初級:</strong>
+        <p>Q6: NaCl のイオン式は？</p>
+        <label><input type="radio" name="ion1" value="1"> Na<sup>+</sup> + Cl<sup>−</sup></label><br>
+        <label><input type="radio" name="ion1" value="0"> Na + Cl</label><br>
+        <button onclick="checkRadio('ion1', 'r_ion1', 'e_ion1')">答え合わせ</button>
+        <button class="show-expl" onclick="toggleExpl('e_ion1')">解説を見る</button>
+        <div class="result" id="r_ion1"></div>
+        <div class="explanation" id="e_ion1">NaClは食塩で、<br>水に溶けると Na<sup>+</sup> と Cl<sup>−</sup> のイオンになります。</div>
+      </div>
+      <div class="level"><strong>中級:</strong>
+        <p>Q7: CuSO₄ のイオン式は？</p>
+        <label><input type="radio" name="ion2" value="1"> Cu<sup>2+</sup> + SO₄<sup>2−</sup></label><br>
+        <label><input type="radio" name="ion2" value="0"> Cu + SO₄</label><br>
+        <button onclick="checkRadio('ion2', 'r_ion2', 'e_ion2')">答え合わせ</button>
+        <button class="show-expl" onclick="toggleExpl('e_ion2')">解説を見る</button>
+        <div class="result" id="r_ion2"></div>
+        <div class="explanation" id="e_ion2">硫酸銅は Cu<sup>2+</sup> と SO₄<sup>2−</sup> に分かれます。</div>
+      </div>
+    </div>
+
+    <!-- ボルタ電池 -->
+    <div class="quiz-section">
+      <h3>🔋 ボルタ電池</h3>
+      <div class="level"><strong>初級:</strong>
+        <p>Q8: ボルタ電池の負極に使われる金属は？</p>
+        <label><input type="radio" name="volta1" value="1"> 亜鉛（Zn）</label><br>
+        <label><input type="radio" name="volta1" value="0"> 銅（Cu）</label><br>
+        <button onclick="checkRadio('volta1', 'r_volta1', 'e_volta1')">答え合わせ</button>
+        <button class="show-expl" onclick="toggleExpl('e_volta1')">解説を見る</button>
+        <div class="result" id="r_volta1"></div>
+        <div class="explanation" id="e_volta1">ボルタ電池の負極には亜鉛が使われ、<br>亜鉛が電子を放出します。</div>
+      </div>
+      <div class="level"><strong>上級:</strong>
+        <p>Q9: ボルタ電池の反応式は？</p>
+        <label><input type="radio" name="volta2" value="1"> Zn + H₂SO₄ → ZnSO₄ + H₂</label><br>
+        <label><input type="radio" name="volta2" value="0"> Cu + H₂SO₄ → CuSO₄ + H₂</label><br>
+        <button onclick="checkRadio('volta2', 'r_volta2', 'e_volta2')">答え合わせ</button>
+        <button class="show-expl" onclick="toggleExpl('e_volta2')">解説を見る</button>
+        <div class="result" id="r_volta2"></div>
+        <div class="explanation" id="e_volta2">亜鉛が硫酸と反応し、<br>硫酸亜鉛と水素が発生します。</div>
+      </div>
+    </div>
+
+    <!-- 電力・電力量 -->
+    <div class="quiz-section">
+      <h3>⚡ 電力・電力量の計算</h3>
+
+      <div class="level"><strong>初級:</strong>
+        <p>Q10: 電圧 100V、電流 2A のときの電力は？</p>
+        <input type="number" id="power1"><button onclick="checkAns('power1', 200, 'r_power1', 'e_power1')">答え合わせ</button>
+        <button class="show-expl" onclick="toggleExpl('e_power1')">解説を見る</button>
+        <div class="result" id="r_power1"></div>
+        <div class="explanation" id="e_power1">電力 P = 電圧 V × 電流 I なので、<br>P = 100 × 2 = 200W です。</div>
+      </div>
+
+      <div class="level"><strong>中級:</strong>
+        <p>Q11: 電力 500W を 3時間 使用したときの電力量は？（Wh）</p>
+        <input type="number" id="energy1"><button onclick="checkAns('energy1', 1500, 'r_energy1', 'e_energy1')">答え合わせ</button>
+        <button class="show-expl" onclick="toggleExpl('e_energy1')">解説を見る</button>
+        <div class="result" id="r_energy1"></div>
+        <div class="explanation" id="e_energy1">電力量（Wh）= 電力（W）× 使用時間（h）なので、<br>500 × 3 = 1500Wh です。</div>
+      </div>
+
+      <div class="level"><strong>上級:</strong>
+        <p>Q12: 電圧 220V、電流 5A の電気器具を 4時間使ったときの電力量は？（Wh）</p>
+        <input type="number" id="energy2"><button onclick="checkAns('energy2', 4400, 'r_energy2', 'e_energy2')">答え合わせ</button>
+        <button class="show-expl" onclick="toggleExpl('e_energy2')">解説を見る</button>
+        <div class="result" id="r_energy2"></div>
+        <div class="explanation" id="e_energy2">まず電力 P = V × I = 220 × 5 = 1100W。<br>電力量 = 電力 × 時間 = 1100 × 4 = 4400Wh です。</div>
+      </div>
+    </div>
+  </div>
+<div class="quiz-section">
+  <h3>🎚 オペアンプ基礎</h3>
+  <div class="level"><strong>初級:</strong>
+    <p>Q1: 理想的なオペアンプの特性として正しいのは？</p>
+    <label><input type="radio" name="op1" value="1"> 入力電流がゼロ</label><br>
+    <label><input type="radio" name="op1" value="0"> 出力と入力は常に等しい</label><br>
+    <label><input type="radio" name="op1" value="0"> 出力電流がゼロ</label><br>
+    <button onclick="checkRadio('op1', 'r_op1', 'e_op1')">答え合わせ</button>
+    <button class="show-expl" onclick="toggleExpl('e_op1')">解説を見る</button>
+    <div class="result" id="r_op1"></div>
+    <div class="explanation" id="e_op1">
+      オペアンプっていう部品は、とても頭のいい「電気のコントローラー」みたいなものです。<br>
+  理想的なオペアンプでは、「入り口」に電流が流れません。<br>
+  つまり、見た目では電気が来ているように見えても、実際には電気が入っていかないんです。<br>
+  これが「入力電流がゼロ」という意味です。    </div>
+  </div>
+
+  <div class="level"><strong>初級:</strong>
+    <p>Q2: 負帰還を使ったオペアンプの特徴は？</p>
+    <label><input type="radio" name="op2" value="0"> 出力は常に電源電圧と等しい</label><br>
+    <label><input type="radio" name="op2" value="1"> 反転入力と非反転入力の電圧差が0に近づく</label><br>
+    <label><input type="radio" name="op2" value="0"> 出力電流は常に最大になる</label><br>
+    <button onclick="checkRadio('op2', 'r_op2', 'e_op2')">答え合わせ</button>
+    <button class="show-expl" onclick="toggleExpl('e_op2')">解説を見る</button>
+    <div class="result" id="r_op2"></div>
+    <div class="explanation" id="e_op2">
+      負帰還（ふきかん）というのは、オペアンプの「出力」を「入力の一部」に戻す仕組みです。<br>
+  するとオペアンプは「−の入り口」と「＋の入り口」の電圧（でんあつ）が同じくらいになるようにがんばります。<br>
+  だから、2つの入り口の電圧のちがいが、ほとんどなくなるんだよ！
+    </div>
+  </div>
+
+  <div class="level"><strong>初級:</strong>
+    <p>Q3: 反転増幅回路での入力と出力の関係は？</p>
+    <label><input type="radio" name="op3" value="1"> 出力は入力の符号が反転し、増幅される</label><br>
+    <label><input type="radio" name="op3" value="0"> 出力は入力と同じ向きで増幅される</label><br>
+    <label><input type="radio" name="op3" value="0"> 出力は常に0Vである</label><br>
+    <button onclick="checkRadio('op3', 'r_op3', 'e_op3')">答え合わせ</button>
+    <button class="show-expl" onclick="toggleExpl('e_op3')">解説を見る</button>
+    <div class="result" id="r_op3"></div>
+    <div class="explanation" id="e_op3">
+      反転増幅回路は、電気の信号を「逆さまにして大きくする」回路です。
+
+たとえば、もし入力の電気が「プラスの力」だったら、出力は「マイナスの力」になります。
+逆に、入力が「マイナスの力」なら、出力は「プラスの力」になるんです。
+
+そして、出力の大きさは「入力よりももっと強くなる」こともできます。
+これは、回路の中の特別な抵抗（でんきの通り道）が信号を大きくしてくれるからです。
+
+オペアンプという部品は、「入力の＋と−のところの電気の力が同じになるように調整する」という働きをしているので、信号はきれいに逆さまに増幅されます。
+    </div>
+  </div>
+</div>
+<div class="level"><strong>初級:</strong>
+  <p>Q1: コンデンサの中で、電気をためる部分はどれ？</p>
+  <label><input type="radio" name="cap1" value="1"> 導体（誘導体）</label><br>
+  <label><input type="radio" name="cap1" value="0"> 絶縁体（誘電体）</label><br>
+  <label><input type="radio" name="cap1" value="0"> 電池</label><br>
+  <button onclick="checkRadio('cap1', 'r_cap1', 'e_cap1')">答え合わせ</button>
+  <button class="show-expl" onclick="toggleExpl('e_cap1')">解説を見る</button>
+  <div class="result" id="r_cap1"></div>
+  <div class="explanation" id="e_cap1" style="display:none;">
+    コンデンサの「導体」は、電気をためる“たらい”のようなもの。たまった電気はこのたらいの中に入っています。絶縁体は、このたらいの間にある“水のふた”みたいなもので、電気がこぼれないようにガードしているんです。
+  </div>
+</div>
+
+<div class="level"><strong>初級:</strong>
+  <p>Q2: 絶縁体（誘電体）の役割は何ですか？</p>
+  <label><input type="radio" name="cap2" value="1"> 電気を通さず、電荷をためるのを助ける</label><br>
+  <label><input type="radio" name="cap2" value="0"> 電気をよく通す</label><br>
+  <label><input type="radio" name="cap2" value="0"> 電気を発生させる</label><br>
+  <button onclick="checkRadio('cap2', 'r_cap2', 'e_cap2')">答え合わせ</button>
+  <button class="show-expl" onclick="toggleExpl('e_cap2')">解説を見る</button>
+  <div class="result" id="r_cap2"></div>
+  <div class="explanation" id="e_cap2" style="display:none;">
+    絶縁体は電気の“ふた”のようなもの。電気が逃げないようにブロックしつつ、電気をためるのを助けます。たとえるなら、ふたのあるペットボトルが水をこぼさないのと似ています。
+  </div>
+</div>
+
+<div class="level"><strong>初級:</strong>
+  <p>Q3: コンデンサの静電容量を大きくするにはどうすれば良い？</p>
+  <label><input type="radio" name="cap3" value="1"> 導体の面積を大きくし、絶縁体の厚さを薄くする</label><br>
+  <label><input type="radio" name="cap3" value="0"> 導体の面積を小さくし、絶縁体の厚さを厚くする</label><br>
+  <label><input type="radio" name="cap3" value="0"> 導体を絶縁体で覆う</label><br>
+  <button onclick="checkRadio('cap3', 'r_cap3', 'e_cap3')">答え合わせ</button>
+  <button class="show-expl" onclick="toggleExpl('e_cap3')">解説を見る</button>
+  <div class="result" id="r_cap3"></div>
+  <div class="explanation" id="e_cap3" style="display:none;">
+    静電容量は、水をためるバケツの大きさや深さに似ています。導体の面積が広いと“バケツが大きい”状態。絶縁体が薄いと“バケツの壁が薄くて水がたくさん入る”イメージです。
+  </div>
+</div>
+
+<div class="level"><strong>初級:</strong>
+  <p>Q4: 誘電率が高い絶縁体を使うとどうなる？</p>
+  <label><input type="radio" name="cap4" value="1"> コンデンサの容量が大きくなる</label><br>
+  <label><input type="radio" name="cap4" value="0"> コンデンサの容量が小さくなる</label><br>
+  <label><input type="radio" name="cap4" value="0"> コンデンサが壊れる</label><br>
+  <button onclick="checkRadio('cap4', 'r_cap4', 'e_cap4')">答え合わせ</button>
+  <button class="show-expl" onclick="toggleExpl('e_cap4')">解説を見る</button>
+  <div class="result" id="r_cap4"></div>
+  <div class="explanation" id="e_cap4" style="display:none;">
+    誘電率が高い絶縁体は“スーパースポンジ”のようなもの。たくさんの電気を吸い込んでためる力が強いので、コンデンサの容量が増えます。
+  </div>
+</div>
+
+<div class="level"><strong>初級:</strong>
+  <p>Q5: コンデンサを直列に2つつなぐときの合成容量はどう計算する？</p>
+  <label><input type="radio" name="cap5" value="1"> 逆数の和の逆数（\(\frac{1}{C} = \frac{1}{C_1} + \frac{1}{C_2}\)）</label><br>
+  <label><input type="radio" name="cap5" value="0"> 容量を足す（\(C = C_1 + C_2\)）</label><br>
+  <label><input type="radio" name="cap5" value="0"> 容量をかける（\(C = C_1 \times C_2\)）</label><br>
+  <button onclick="checkRadio('cap5', 'r_cap5', 'e_cap5')">答え合わせ</button>
+  <button class="show-expl" onclick="toggleExpl('e_cap5')">解説を見る</button>
+  <div class="result" id="r_cap5"></div>
+  <div class="explanation" id="e_cap5" style="display:none;">
+    直列つなぎは、2つの水そうをパイプでつなげて水をためるイメージ。水が両方通るから、全体の容量は減ります。計算はちょっとむずかしいけど、逆数を使って求めます。
+  </div>
+</div>
+
+<div class="level"><strong>初級:</strong>
+  <p>Q6: コンデンサを並列に2つつなぐときの合成容量はどう計算する？</p>
+  <label><input type="radio" name="cap6" value="1"> 容量を足す（\(C = C_1 + C_2\)）</label><br>
+  <label><input type="radio" name="cap6" value="0"> 逆数の和の逆数（\(\frac{1}{C} = \frac{1}{C_1} + \frac{1}{C_2}\)）</label><br>
+  <label><input type="radio" name="cap6" value="0"> 容量を引く（\(C = C_1 - C_2\)）</label><br>
+  <button onclick="checkRadio('cap6', 'r_cap6', 'e_cap6')">答え合わせ</button>
+  <button class="show-expl" onclick="toggleExpl('e_cap6')">解説を見る</button>
+  <div class="result" id="r_cap6"></div>
+  <div class="explanation" id="e_cap6" style="display:none;">
+    並列つなぎは、大きなバケツに2つのバケツから水を注ぐイメージ。だから容量は足し算になります。直列とは違うので注意してね。
+  </div>
+</div>
+<!-- ファラデーとインダクタンス -->
+<div class="quiz-section">
+  <h3>🔄 ファラデーの法則とインダクタンス</h3>
+
+  <div class="level"><strong>初級:</strong>
+    <p>Q13: コイルの巻数 N = 100、磁束変化 ΔΦ = 0.02 Wb、時間 Δt = 0.1s のとき、誘導起電力はいくら？（V）</p>
+    <input type="number" id="faraday1">
+    <button onclick="checkAns('faraday1', 20, 'r_faraday1', 'e_faraday1')">答え合わせ</button>
+    <button class="show-expl" onclick="toggleExpl('e_faraday1')">解説を見る</button>
+    <div class="result" id="r_faraday1"></div>
+    <div class="explanation" id="e_faraday1">
+      ファラデーの法則：<br>
+      \(\mathcal{E} = -N \frac{ΔΦ}{Δt} = -100 × \frac{0.02}{0.1} = -20\) V。<br>
+      絶対値をとって 20V です。
+    </div>
+  </div>
+
+  <div class="level"><strong>中級:</strong>
+    <p>Q14: コイルの巻数 N = 200、断面積 S = 0.01 m²、透磁率 M = 4π×10⁻⁷、磁路長 l = 0.05 m のとき、インダクタンス L は何 H？（小数第6位まで）</p>
+    <input type="number" step="0.000001" id="inductance1">
+    <button onclick="checkAns('inductance1', 0.010053, 'r_inductance1', 'e_inductance1')">答え合わせ</button>
+    <button class="show-expl" onclick="toggleExpl('e_inductance1')">解説を見る</button>
+    <div class="result" id="r_inductance1"></div>
+    <div class="explanation" id="e_inductance1">
+      インダクタンスの式：<br>
+      \(L = \frac{M N^2 S}{l} = \frac{(4π×10^{-7}) × 200^2 × 0.01}{0.05} ≒ 0.010053\) H
+    </div>
+  </div>
+
+  <div class="level"><strong>上級:</strong>
+    <p>Q15: ファラデーの右ネジの法則に従い、電流が奥から手前に流れるとき、コイルの周りの磁場の向きは？（「時計回り」または「反時計回り」と日本語で入力）</p>
+    <input type="text" id="neji1">
+    <button onclick="checkTextAns('neji1', ['時計回り'], 'r_neji1', 'e_neji1')">答え合わせ</button>
+    <button class="show-expl" onclick="toggleExpl('e_neji1')">解説を見る</button>
+    <div class="result" id="r_neji1"></div>
+    <div class="explanation" id="e_neji1">
+      右ネジの法則では、親指（電流）が手前なら、他の指の巻く向き（磁場）は時計回りになります。
+    </div>
+  </div>
+</div>
+
+<!-- 三平方の定理 -->
+<div class="quiz-section">
+  <h3>📐 三平方の定理</h3>
+
+  <div class="level"><strong>初級:</strong>
+    <p>Q1: 直角三角形で、直角をはさむ2辺の長さが 3cm と 4cm のとき、斜辺の長さは？（cm）</p>
+    <input type="number" id="triangle1">
+    <button onclick="checkAns('triangle1', 5, 'r_triangle1', 'e_triangle1')">答え合わせ</button>
+    <button class="show-expl" onclick="toggleExpl('e_triangle1')">解説を見る</button>
+    <div class="result" id="r_triangle1"></div>
+    <div class="explanation" id="e_triangle1">
+      三平方の定理より、斜辺の長さ \( c \) は、<br>
+      \( c = \sqrt{3^2 + 4^2} = \sqrt{9 + 16} = \sqrt{25} = 5 \)cm
+    </div>
+  </div>
+
+  <div class="level"><strong>中級:</strong>
+    <p>Q2: 直角三角形で、斜辺が 13cm、1つの直角辺が 5cm のとき、もう1つの直角辺の長さは？（cm）</p>
+    <input type="number" id="triangle2">
+    <button onclick="checkAns('triangle2', 12, 'r_triangle2', 'e_triangle2')">答え合わせ</button>
+    <button class="show-expl" onclick="toggleExpl('e_triangle2')">解説を見る</button>
+    <div class="result" id="r_triangle2"></div>
+    <div class="explanation" id="e_triangle2">
+      三平方の定理より、もう1つの直角辺 \( b \) は、<br>
+      \( b = \sqrt{13^2 - 5^2} = \sqrt{169 - 25} = \sqrt{144} = 12 \)cm
+    </div>
+  </div>
+</div>
+
+
+<h3>⚡ 物質の電気的性質と半導体の基本</h3>
+
+<div class="level"><strong>初級:</strong>
+  <p>Q1: 次のうち、電気を通さない物質はどれ？</p>
+  <select id="q1">
+    <option value="">選んでください</option>
+    <option value="1">銅</option>
+    <option value="2">ゴム</option>
+    <option value="3">シリコン</option>
+  </select>
+  <button onclick="checkSelectAns('q1', '2', 'r_q1', 'e_q1')">答え合わせ</button>
+  <button class="show-expl" onclick="toggleExpl('e_q1')">解説を見る</button>
+  <div class="result" id="r_q1"></div>
+  <div class="explanation" id="e_q1">
+    ゴムは電気を通さない「絶縁体」です。<br>
+    銅は導体、シリコンは条件付きで通す半導体です。
+  </div>
+</div>
+
+<div class="level"><strong>中級:</strong>
+  <p>Q2: P型半導体の電気のキャリア（主な運び手）は？</p>
+  <select id="q2">
+    <option value="">選んでください</option>
+    <option value="1">自由電子</option>
+    <option value="2">正孔</option>
+    <option value="3">中性子</option>
+  </select>
+  <button onclick="checkSelectAns('q2', '2', 'r_q2', 'e_q2')">答え合わせ</button>
+  <button class="show-expl" onclick="toggleExpl('e_q2')">解説を見る</button>
+  <div class="result" id="r_q2"></div>
+  <div class="explanation" id="e_q2">
+    P型半導体のキャリアは「電子の穴（正孔）」です。<br>
+    電子が足りない場所が電気を運ぶように見える現象です。
+  </div>
+</div>
+
+<div class="level"><strong>応用:</strong>
+  <p>Q3: ダイオードが電流を流すのはどんなとき？</p>
+  <select id="q3">
+    <option value="">選んでください</option>
+    <option value="1">P側が＋、N側が－</option>
+    <option value="2">P側が－、N側が＋</option>
+    <option value="3">どちらでも流れる</option>
+  </select>
+  <button onclick="checkSelectAns('q3', '1', 'r_q3', 'e_q3')">答え合わせ</button>
+  <button class="show-expl" onclick="toggleExpl('e_q3')">解説を見る</button>
+  <div class="result" id="r_q3"></div>
+  <div class="explanation" id="e_q3">
+    ダイオードは「順方向（Pが＋、Nが－）」でしか電流を流しません。<br>
+    逆方向では空乏層が広がり、電流は流れません。
+  </div>
+</div>
+
+<div class="level"><strong>発展:</strong>
+  <p>Q4: トランジスタで、ベースに小さな電流を流すとどうなる？</p>
+  <select id="q4">
+    <option value="">選んでください</option>
+    <option value="1">何も起こらない</option>
+    <option value="2">小さい電流が逆流する</option>
+    <option value="3">コレクタ-エミッタ間に大きな電流が流れる</option>
+  </select>
+  <button onclick="checkSelectAns('q4', '3', 'r_q4', 'e_q4')">答え合わせ</button>
+  <button class="show-expl" onclick="toggleExpl('e_q4')">解説を見る</button>
+  <div class="result" id="r_q4"></div>
+  <div class="explanation" id="e_q4">
+    ベースに少し電流を流すだけで、コレクタとエミッタ間に大きな電流が流れます。<br>
+    これが「電気のスイッチ」や「増幅器」としてのトランジスタの働きです。
+  </div>
+</div>
+
+  <script>
+    function checkAns(inputId, correctAns, resultId, explId) {
+      const userVal = parseFloat(document.getElementById(inputId).value);
+      const resEl = document.getElementById(resultId);
+      if (isNaN(userVal)) {
+        resEl.innerText = '⚠️ 数字を入力してください';
+        if(explId) document.getElementById(explId).style.display = 'none';
+      } else {
+        if (Math.abs(userVal - correctAns) < 0.01) {
+          resEl.innerText = '✅ 正解！';
+          if(explId) document.getElementById(explId).style.display = 'block';
+        } else {
+          resEl.innerText = '❌ 不正解。正解は ' + correctAns;
+          if(explId) document.getElementById(explId).style.display = 'block';
+        }
+      }
+    }
+
+    function checkRadio(name, resultId, explId) {
+      const choices = document.getElementsByName(name);
+      let selected = null;
+      for (let c of choices) {
+        if (c.checked) selected = c.value;
+      }
+      const resEl = document.getElementById(resultId);
+      if (selected === null) {
+        resEl.innerText = '⚠️ 選択肢を選んでください';
+        if(explId) document.getElementById(explId).style.display = 'none';
+      } else {
+        if (selected === '1') {
+          resEl.innerText = '✅ 正解！';
+          if(explId) document.getElementById(explId).style.display
+        } else {
+          resEl.innerText = '❌ 不正解。';
+          if(explId) document.getElementById(explId).style.display = 'block';
+        }
+      }
+    }
+
+    function toggleExpl(explId) {
+      const explEl = document.getElementById(explId);
+      if (explEl.style.display === 'none') {
+        explEl.style.display = 'block';
+      } else {
+        explEl.style.display = 'none';
+      }
+    }
+  function checkSelectAns(selectId, correctVal, resultId, explId) {
+    const select = document.getElementById(selectId);
+    const result = document.getElementById(resultId);
+    if (select.value === correctVal) {
+      result.textContent = "✅ 正解！";
+      result.style.color = "green";
+    } else {
+      result.textContent = "❌ 不正解";
+      result.style.color = "red";
+    }
+    document.getElementById(explId).style.display = "none";
+  }
+
+  function toggleExpl(id) {
+    const el = document.getElementById(id);
+    el.style.display = (el.style.display === "none" || el.style.display === "") ? "block" : "none";
+  }
+  </script>
+

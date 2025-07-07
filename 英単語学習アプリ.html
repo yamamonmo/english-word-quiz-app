@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>英単語テストアプリ（究極完全版・解説付き）</title>
+    <style>
+        body {
+            background-color: #f8f8f8;
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .quiz-area {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #e9f5ff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .question-word {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .options-container label {
+            display: block;
+            background-color: #f0f8ff;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #cceeff;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            font-size: 1.1em;
+        }
+        .options-container label:hover {
+            background-color: #e0f0ff;
+            border-color: #99ccff;
+        }
+        .options-container input[type="radio"] {
+            margin-right: 10px;
+            transform: scale(1.2); /* ラジオボタンを少し大きく表示 */
+        }
+        .button-group {
+            text-align: center;
+            margin-top: 25px;
+        }
+        .button-group button {
+            padding: 12px 25px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #check-answer-btn {
+            background-color: #3498db;
+            color: white;
+        }
+        #check-answer-btn:hover {
+            background-color: #2980b9;
+        }
+        #next-question-btn {
+            background-color: #2ecc71;
+            color: white;
+            display: none; /* 初期は非表示 */
+        }
+        #next-question-btn:hover {
+            background-color: #27ae60;
+        }
+        #show-explanation-btn {
+            background-color: #f39c12;
+            color: white;
+            display: none; /* 初期は非表示 */
+        }
+        #show-explanation-btn:hover {
+            background-color: #e67e22;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #fffacd; /* 薄い黄色 */
+            border-left: 5px solid #f1c40f;
+            border-radius: 5px;
+            display: none; /* 初期は非表示 */
+            font-size: 1em;
+            color: #555;
+        }
+        .correct-answer-feedback {
+            color: green;
+        }
+        .incorrect-answer-feedback {
+            color: red;
+        }
+        .final-score {
+            font-size: 1.5em;
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+        }
+        #restart-quiz-btn {
+            display: block;
+            margin: 20px auto 0;
+            background-color: #9b59b6;
+            color: white;
+        }
+        #restart-quiz-btn:hover {
+            background-color: #8e44ad;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💡 英単語テストアプリ</h1>
+        <p>技術英検の文脈で役立つ英単語を学習しましょう！</p>
+
+        <div id="quiz-area">
+            <div class="quiz-area">
+                <div class="question-word" id="question-word"></div>
+                <div class="options-container" id="options-container">
+                    </div>
+            </div>
+            
+            <div class="button-group">
+                <button id="check-answer-btn">答え合わせ</button>
+                <button id="show-explanation-btn">解説を見る</button>
+                <button id="next-question-btn">次の問題</button>
+            </div>
+            
+            <div class="result" id="feedback-message"></div>
+            <div class="explanation" id="explanation-text"></div>
+        </div>
+
+        <div id="final-results" style="display: none;">
+            <div class="final-score">
+                テスト終了！<br>
+                あなたのスコア: <span id="score-display">0</span> / <span id="total-questions-display">0</span>
+            </div>
+            <button id="restart-quiz-btn">もう一度テストする</button>
+        </div>
+    </div>
+
+    <script>
+        // 英単語データ (技術英検の文脈を考慮した和訳と解説)
+        const wordData = [
+            // --- S__26017800.jpg より ---
+            {
+                word: "Microplastics",
+                correct: "マイクロプラスチック",
+                explanation: "環境問題で話題になる微細なプラスチック粒子。海洋汚染の原因ともなる。",
+                options: ["微細な粒子", "マイクロプラスチック", "極小物質", "微量物質"]
+            },
+            {
+                word: "Millimeters",
+                correct: "ミリメートル",
+                explanation: "長さの単位で、1メートルの1000分の1。機械設計や精密部品で頻繁に用いられる。",
+                options: ["センチメートル", "ミリメートル", "マイクロメートル", "ナノメートル"]
+            },
+            {
+                word: "Diameter",
+                correct: "直径",
+                explanation: "円や球の中心を通る直線の長さ。パイプの内径や機械部品の太さなどを表す。",
+                options: ["半径", "円周", "面積", "直径"]
+            },
+            {
+                word: "Iron",
+                correct: "鉄",
+                explanation: "金属元素の一つ。鋼の主成分で、構造材料として広く使われる。",
+                options: ["銅", "アルミニウム", "鉄", "亜鉛"]
+            },
+            {
+                word: "Steel",
+                correct: "鋼鉄",
+                explanation: "鉄を主成分とし、炭素などを加えた合金。強度が高く、建築や機械に不可欠。",
+                options: ["鋳鉄", "合金", "鋼鉄", "純鉄"]
+            },
+            {
+                word: "Aluminum",
+                correct: "アルミニウム",
+                explanation: "軽くて加工しやすく、耐食性に優れる金属。航空機や建材、電子機器に利用。",
+                options: ["鉛", "チタン", "アルミニウム", "ニッケル"]
+            },
+            {
+                word: "Resistant",
+                correct: "耐性のある、耐～性",
+                explanation: "特定の作用（熱、腐食など）に対して抵抗力があること。「耐熱性 (heat resistant)」のように使われる。",
+                options: ["脆弱な", "敏感な", "耐性のある、耐～性", "変化しやすい"]
+            },
+            {
+                word: "Corrosion",
+                correct: "腐食",
+                explanation: "金属などが化学反応によって劣化する現象。錆びることも含む。",
+                options: ["伝導", "浸食", "腐食", "収縮"]
+            },
+            {
+                word: "Managed",
+                correct: "管理された、対処された、なんとか実現した",
+                explanation: "プロジェクトやシステムが適切に運営・制御されたり、困難な状況を乗り越えて目標を達成したりすること。",
+                options: ["無視された", "放置された", "管理された、対処された、なんとか実現した", "悪化した"]
+            },
+            {
+                word: "Unlike",
+                correct: "～とは異なり、～と違って",
+                explanation: "対象となるものと性質や特徴が違うことを示す。",
+                options: ["～に似て", "～と同様に", "～とは異なり、～と違って", "～に関して"]
+            },
+            {
+                word: "Outline",
+                correct: "概略、輪郭、アウトライン",
+                explanation: "計画や設計の初期段階での大まかな構成や骨子。詳細に入る前の全体像。",
+                options: ["詳細", "概略、輪郭、アウトライン", "図形", "表面"]
+            },
+            {
+                word: "Exceptions",
+                correct: "例外、例外処理",
+                explanation: "通常のルールやパターンから外れるもの。プログラミングではエラーや異常事態を指すことが多い。",
+                options: ["規則", "基準", "例外、例外処理", "標準"]
+            },
+            {
+                word: "Automatic",
+                correct: "自動の、自動式",
+                explanation: "人間の介入なしに、特定の機能や動作が自動的に行われること。",
+                options: ["手動の", "半自動の", "自動の、自動式", "調整可能な"]
+            },
+            {
+                word: "Replaced",
+                correct: "置換された、交換された",
+                explanation: "古い部品やシステムが新しいものに取り替えられたり、ある要素が別の要素に置き換えられたりすること。",
+                options: ["追加された", "削除された", "置換された、交換された", "維持された"]
+            },
+            {
+                word: "Defined",
+                correct: "定義された、規定された",
+                explanation: "特定の用語や概念が明確に説明されたり、規格や仕様が定められたりすること。",
+                options: ["曖昧な", "未定の", "定義された、規定された", "不明確な"]
+            },
+            {
+                word: "Evidence",
+                correct: "証拠、根拠",
+                explanation: "科学的な実験や調査、データに基づいて、ある主張や理論が正しいことを示す裏付け。",
+                options: ["仮説", "証拠、根拠", "意見", "推測"]
+            },
+            {
+                word: "Satellites",
+                correct: "衛星",
+                explanation: "地球などの惑星の周りを公転する人工または天然の天体。通信や観測に利用されることが多い。",
+                options: ["惑星", "流星", "彗星", "衛星"]
+            },
+            {
+                word: "Scientific",
+                correct: "科学的な、科学的",
+                explanation: "科学の原則、方法、または目的に関連すること。",
+                options: ["芸術的な", "歴史的な", "科学的な、科学的", "哲学的な"]
+            },
+
+            // --- S__26017801.jpg より ---
+            {
+                word: "Heart",
+                correct: "心臓",
+                explanation: "生物の循環器系の中枢。転じて、システムや組織の「核」や「中心」を意味することも。",
+                options: ["脳", "肺", "肝臓", "心臓"]
+            },
+            {
+                word: "Organ",
+                correct: "器官、組織",
+                explanation: "生物学的な意味での器官。転じて、特定の機能を持つ組織や部門を指すこともある。",
+                options: ["細胞", "微生物", "器官、組織", "分子"]
+            },
+            {
+                word: "Solar system",
+                correct: "太陽系",
+                explanation: "太陽とその周囲を公転する天体からなるシステム。",
+                options: ["銀河", "宇宙", "惑星", "太陽系"]
+            },
+            {
+                word: "Reliable",
+                correct: "信頼性の高い、確実な",
+                explanation: "システムや装置が期待通りに、故障なく安定して動作すること。",
+                options: ["不安定な", "不確かな", "信頼性の高い、確実な", "一時的な"]
+            },
+            {
+                word: "X-ray",
+                correct: "X線",
+                explanation: "医療診断や非破壊検査に用いられる高エネルギー電磁波。",
+                options: ["超音波", "MRI", "X線", "CT"]
+            },
+            {
+                word: "Examination",
+                correct: "検査、検討",
+                explanation: "製品の品質チェック、システムの動作確認、問題点の詳細な分析など。",
+                options: ["設計", "製造", "検査、検討", "廃棄"]
+            },
+            {
+                word: "Baggage",
+                correct: "荷物",
+                explanation: "旅行者が携帯する手荷物や預け入れ荷物。",
+                options: ["乗客", "車両", "荷物", "目的地"]
+            },
+            {
+                word: "Researchers",
+                correct: "研究者",
+                explanation: "特定の分野で専門的な調査や実験を行い、知識を深める活動に従事する人。",
+                options: ["製造業者", "販売者", "研究者", "消費者"]
+            },
+            {
+                word: "Interact",
+                correct: "相互作用する",
+                explanation: "二つ以上のものが互いに影響を与え合うこと。システム間の連携など。",
+                options: ["孤立する", "分離する", "相互作用する", "停止する"]
+            },
+            {
+                word: "Revealed",
+                correct: "明らかになった、判明した",
+                explanation: "隠されていた情報や事実が公開されたり、調査の結果として判明したりすること。",
+                options: ["隠された", "不明な", "明らかになった、判明した", "秘匿された"]
+            },
+            {
+                word: "Process",
+                correct: "工程、プロセス、処理する",
+                explanation: "特定の目的を達成するための一連の作業や手順。情報処理も含む。",
+                options: ["結果", "出発点", "工程、プロセス、処理する", "入力"]
+            },
+            {
+                word: "Known",
+                correct: "既知の、知られている",
+                explanation: "既に情報が公開されており、広く認識されていること。",
+                options: ["未知の", "不明瞭な", "既知の、知られている", "秘密の"]
+            },
+            {
+                word: "Facilitated",
+                correct: "促進された、円滑にされた",
+                explanation: "物事の進行が容易になるように助けられたり、スムーズに進むようにされたりすること。",
+                options: ["阻害された", "複雑化された", "促進された、円滑にされた", "遅延された"]
+            },
+            {
+                word: "Ability",
+                correct: "能力、性能",
+                explanation: "システムや装置が特定のタスクを遂行できる物理的・技術的な力量。",
+                options: ["限界", "弱点", "能力、性能", "欠点"]
+            },
+            {
+                word: "Characteristic",
+                correct: "特性、特徴",
+                explanation: "材料、デバイス、システムなどが持つ固有の性質や識別できる特徴。",
+                options: ["例外", "逸脱", "特性、特徴", "異常"]
+            },
+            {
+                word: "Shafts",
+                correct: "軸、シャフト",
+                explanation: "回転運動を伝達する機械部品。モーターの回転軸など。",
+                options: ["歯車", "ベアリング", "軸、シャフト", "チェーン"]
+            },
+            {
+                word: "Propeller",
+                correct: "プロペラ",
+                explanation: "回転によって流体を推進する装置。航空機や船舶に使われる。",
+                options: ["翼", "エンジン", "車輪", "プロペラ"]
+            },
+            {
+                word: "Circuit breaker",
+                correct: "回路遮断器",
+                explanation: "過電流や短絡などの異常時に自動的に回路を遮断し、機器や配線を保護する装置。",
+                options: ["抵抗器", "コンデンサ", "回路遮断器", "インダクタ"]
+            },
+
+            // --- S__26017802.jpg より ---
+            {
+                word: "Helium gas",
+                correct: "ヘリウムガス",
+                explanation: "非常に軽く、不燃性の希ガス。気球や飛行船の浮揚用、MRIの冷却などに使用される。",
+                options: ["酸素ガス", "窒素ガス", "ヘリウムガス", "二酸化炭素"]
+            },
+            {
+                word: "Introduce",
+                correct: "導入する、組み込む",
+                explanation: "新しい技術、システム、製品などを初めて使うことや、既存のものに組み込むこと。",
+                options: ["削除する", "無視する", "導入する、組み込む", "拒否する"]
+            },
+            {
+                word: "Balloons",
+                correct: "気球、バルーン",
+                explanation: "ガスを充填して浮揚する装置。気象観測や研究、レジャーなどに使われる。",
+                options: ["飛行機", "ヘリコプター", "気球、バルーン", "ドローン"]
+            },
+            {
+                word: "Coral reefs",
+                correct: "サンゴ礁",
+                explanation: "サンゴが作る石灰質の構造物。海洋生態系において重要な役割を果たす。",
+                options: ["深海", "マングローブ林", "サンゴ礁", "氷河"]
+            },
+                {
+                word: "Nucleus",
+                correct: "核",
+                explanation: "原子の中心にある陽子と中性子からなる部分。または細胞の中心にある遺伝情報を司る部分。",
+                options: ["細胞膜", "細胞質", "核", "ミトコンドリア"]
+            },
+            {
+                word: "Oxygen",
+                correct: "酸素",
+                explanation: "生命活動に不可欠な気体元素。燃焼や酸化反応に関与する。",
+                options: ["水素", "窒素", "酸素", "炭素"]
+            },
+            {
+                word: "Vital",
+                correct: "極めて重要な、不可欠な",
+                explanation: "システムやプロセスの機能に必要不可欠であり、欠かせないこと。",
+                options: ["重要でない", "補助的な", "極めて重要な、不可欠な", "選択的な"]
+            },
+            {
+                word: "Element",
+                correct: "要素、成分、元素",
+                explanation: "システムや構成物の一部をなす最小単位。化学では他の物質に分解できない基本物質。",
+                options: ["全体", "結果", "要素、成分、元素", "合成物"]
+            },
+            {
+                word: "Transferred",
+                correct: "転送された、伝達された",
+                explanation: "情報、エネルギー、物質などが一箇所から別の箇所へ移された状態。",
+                options: ["保持された", "生成された", "転送された、伝達された", "破壊された"]
+            },
+            {
+                word: "Conduction",
+                correct: "伝導",
+                explanation: "熱や電気が直接物体内を伝わる現象。物質そのものが移動する対流とは区別される。",
+                options: ["伝達", "対流", "放射", "伝導"]
+            },
+            {
+                word: "Developed",
+                correct: "開発された、進化した",
+                explanation: "新しい技術や製品が研究、設計、製造を経て実用化されたり、既存のものが改良されたりすること。",
+                options: ["退化した", "停止した", "開発された、進化した", "固定された"]
+            },
+            {
+                word: "Application program",
+                correct: "アプリケーションプログラム、応用プログラム",
+                explanation: "特定の目的のために作られたソフトウェア。例: 文書作成ソフト、表計算ソフト。",
+                options: ["オペレーティングシステム", "ファームウェア", "アプリケーションプログラム、応用プログラム", "ドライバ"]
+            },
+            {
+                word: "Molecule",
+                correct: "分子",
+                explanation: "原子がいくつか結合してできた、物質の化学的性質を示す最小単位。",
+                options: ["原子", "イオン", "分子", "電子"]
+            },
+            {
+                word: "Electromagnetic waves",
+                correct: "電磁波",
+                explanation: "電場と磁場の変化が空間を伝わる波。光、X線、電波などがこれに属する。",
+                options: ["音波", "水波", "電磁波", "地震波"]
+            },
+            {
+                word: "X-axis",
+                correct: "x軸",
+                explanation: "座標系における水平方向の軸。グラフや図面で基準となる。",
+                options: ["y軸", "z軸", "原点", "x軸"]
+            },
+            {
+                word: "Y-axis",
+                correct: "y軸",
+                explanation: "座標系における垂直方向の軸。グラフや図面で基準となる。",
+                options: ["x軸", "z軸", "原点", "y軸"]
+            },
+            {
+                word: "Survive",
+                correct: "生き残る、存続する",
+                explanation: "厳しい環境や状況下で、機能や存在を維持し続けること。",
+                options: ["消滅する", "崩壊する", "生き残る、存続する", "劣化する"]
+            },
+            {
+                word: "Function",
+                correct: "機能、作用",
+                explanation: "機器やシステムが果たすべき役割や働き。数学では入力に対して特定の結果を返す関係。",
+                options: ["欠陥", "故障", "機能、作用", "停止"]
+            },
+
+            // --- S__26017798.jpg より ---
+            {
+                word: "Storing",
+                correct: "貯蔵、保管、記憶",
+                explanation: "データやエネルギーなどを一時的または永続的に保持すること。",
+                options: ["分析", "計算", "貯蔵、保管、記憶", "比較"]
+            },
+            {
+                word: "Earth",
+                correct: "地球",
+                explanation: "太陽系の惑星の一つ。電気回路においては「接地（アース）」の意味でも使われる。",
+                options: ["月", "火星", "太陽", "地球"]
+            },
+            {
+                word: "Weather",
+                correct: "気象、天気",
+                explanation: "大気の状態。気象データは多くの産業（航空、農業など）で重要。",
+                options: ["地質", "海洋", "気象、天気", "宇宙"]
+            },
+            {
+                word: "Forecast",
+                correct: "予測、予報",
+                explanation: "過去のデータや現在の情報に基づいて、将来の状態を事前に推測すること。",
+                options: ["記録", "分析", "予測、予報", "報告"]
+            },
+            {
+                word: "Broadcast",
+                correct: "放送、広報",
+                explanation: "無線や有線で情報を広く送信すること。または企業や組織が情報を公開すること。",
+                options: ["受信", "記録", "放送、広報", "保存"]
+            },
+            {
+                word: "Caster",
+                correct: "キャスター",
+                explanation: "報道番組などでニュースを伝える人。または機械の車輪。",
+                options: ["視聴者", "聴取者", "キャスター", "読者"]
+            },
+            {
+                word: "Statement",
+                correct: "記述、声明、ステートメント",
+                explanation: "プログラミング言語における一つの命令文。または事実を述べる公式な文書。",
+                options: ["疑問", "仮定", "記述、声明、ステートメント", "結果"]
+            },
+            {
+                word: "Statistics",
+                correct: "統計、統計学",
+                explanation: "データを収集、分析、解釈、表示する学問。品質管理や研究開発で重要。",
+                options: ["歴史", "文学", "統計、統計学", "哲学"]
+            },
+            {
+                word: "Increases",
+                correct: "増加する、増大する",
+                explanation: "数値や量が大きくなること。性能向上や生産量増大などに使われる。",
+                options: ["減少する", "維持する", "増加する、増大する", "安定する"]
+            },
+            {
+                word: "Involves",
+                correct: "含む、伴う、関係する",
+                explanation: "あるプロセスやシステムが特定の要素や状況を内包していること。",
+                options: ["除外する", "省略する", "含む、伴う、関係する", "簡略化する"]
+            },
+            {
+                word: "Gathering",
+                correct: "収集、集積",
+                explanation: "データ、情報、資源などを集めること。データ収集（data gathering）など。",
+                options: ["整理", "配布", "収集、集積", "比較"]
+            },
+            {
+                word: "Summarizing",
+                correct: "要約すること、集約すること",
+                explanation: "多くの情報から要点だけを抜き出して簡潔にまとめること。データ集約も含む。",
+                options: ["詳細化すること", "分解すること", "要約すること、集約すること", "拡大すること"]
+            },
+            {
+                word: "Deciding",
+                correct: "決定、判断",
+                explanation: "複数の選択肢の中から一つを選ぶこと。プロセスにおける意思決定。",
+                options: ["推測", "無視", "決定、判断", "保留"]
+            },
+            {
+                word: "Correct",
+                correct: "正しい、修正する",
+                explanation: "間違いがなく正確であること。または誤りを訂正すること。",
+                options: ["誤った", "不正確な", "正しい、修正する", "無効な"]
+            },
+            {
+                word: "Ordinal",
+                correct: "順序の、序数",
+                explanation: "順序やランキングを示すもの。数値の大小ではなく、順番に意味があるデータ。",
+                options: ["数値の", "分類の", "順序の、序数", "グループの"]
+            },
+            {
+                word: "Integer",
+                correct: "整数",
+                explanation: "小数点以下がない数。プログラミングやデジタル回路で基本的なデータ型。",
+                options: ["小数", "分数", "負数", "整数"]
+            },
+            {
+                word: "Divided",
+                correct: "分割された、除算された",
+                explanation: "全体が複数に分けられたり、数値を別の数値で割ったりすること。",
+                options: ["結合された", "乗算された", "分割された、除算された", "追加された"]
+            },
+            {
+                word: "Remainder",
+                correct: "残余、剰余",
+                explanation: "割り算の余り。または何かが残った部分。",
+                options: ["合計", "積", "残余、剰余", "商"]
+            },
+
+            // --- S__26017804.jpg より ---
+            {
+                word: "Dirt",
+                correct: "汚れ、土",
+                explanation: "清掃やメンテナンスの対象となる不純物、または地盤を構成する土壌。",
+                options: ["泥", "汚れ、土", "塵", "ゴミ"]
+            },
+            {
+                word: "Rinsed",
+                correct: "洗い流された、すすがれた",
+                explanation: "洗浄工程において、液体で表面の汚れなどを取り除かれた状態。",
+                options: ["乾燥された", "磨かれた", "洗い流された、すすがれた", "塗布された"]
+            },
+            {
+                word: "Healthy",
+                correct: "健康な、健全な",
+                explanation: "システムや機械、環境などが問題なく、良好な状態を保っていること。",
+                options: ["病気の", "不調な", "健康な、健全な", "故障した"]
+            },
+            {
+                word: "Tail",
+                correct: "尾部、後部",
+                explanation: "飛行機や動物などの体の最後尾の部分。物の末端。",
+                options: ["先端", "中央", "尾部、後部", "側面"]
+            },
+            {
+                word: "Turn on",
+                correct: "電源を入れる、作動させる",
+                explanation: "電気製品や機械のスイッチを入れて動作を開始させること。",
+                options: ["停止する", "分解する", "電源を入れる、作動させる", "組み立てる"]
+            },
+            {
+                word: "Raining",
+                correct: "雨が降っている",
+                explanation: "気象現象の一つ。降水量や水害リスクの評価に関連する。",
+                options: ["晴れている", "雪が降っている", "雨が降っている", "風が強い"]
+            },
+            {
+                word: "Sun shines",
+                correct: "日が照る、太陽が輝く",
+                explanation: "太陽光発電や日照条件の評価など、太陽の光に関連する現象。",
+                options: ["月が出る", "星が輝く", "日が照る、太陽が輝く", "曇り空"]
+            },
+            {
+                word: "Engines",
+                correct: "エンジン",
+                explanation: "燃料の化学エネルギーなどを機械的エネルギーに変換し、動力源となる装置。",
+                options: ["車輪", "プロペラ", "エンジン", "ブレーキ"]
+            },
+            {
+                word: "Machines",
+                correct: "機械",
+                explanation: "特定の作業を行うために設計された装置や器具。",
+                options: ["工具", "機械", "部品", "材料"]
+            },
+            {
+                word: "Vehicles",
+                correct: "車両、乗り物",
+                explanation: "人や物を運搬するために設計された乗り物。自動車、列車、航空機など。",
+                options: ["建物", "道路", "車両、乗り物", "燃料"]
+            },
+            {
+                word: "Generators",
+                correct: "発電機",
+                explanation: "運動エネルギーなどを電気エネルギーに変換する装置。",
+                options: ["モーター", "ポンプ", "発電機", "変圧器"]
+            },
+            {
+                word: "Atmosphere",
+                correct: "大気、雰囲気",
+                explanation: "地球を取り巻く気体。気象学や環境科学の対象となる。",
+                options: ["地殻", "海洋", "大気、雰囲気", "宇宙"]
+            },
+            {
+                word: "Polluted",
+                correct: "汚染された",
+                explanation: "環境（空気、水、土壌など）が有害物質によって汚れた状態。",
+                options: ["清潔な", "純粋な", "汚染された", "自然な"]
+            },
+            {
+                word: "Factory",
+                correct: "工場",
+                explanation: "製品を製造・加工するための施設や建物。",
+                options: ["オフィス", "商店", "工場", "住宅"]
+            },
+            {
+                word: "Built",
+                correct: "建てられた、構築された",
+                explanation: "構造物やシステムなどが、設計に基づいて組み立てられたり、建設されたりした状態。",
+                options: ["破壊された", "分解された", "建てられた、構築された", "設計された"]
+            },
+            {
+                word: "Mountain",
+                correct: "山",
+                explanation: "地形の一つ。地質学や土木工学における調査対象となりうる。",
+                options: ["谷", "平野", "山", "湖"]
+            },
+            {
+                word: "Ship",
+                correct: "船、船舶",
+                explanation: "水上を航行する乗り物。海上輸送や海洋調査に用いられる。",
+                options: ["飛行機", "車", "船、船舶", "電車"]
+            },
+
+            // --- S__26017806.jpg より ---
+            {
+                word: "Microwave",
+                correct: "電子レンジ、マイクロ波",
+                explanation: "電磁波の一種であるマイクロ波、またはそれを利用した加熱調理器具。",
+                options: ["赤外線", "超音波", "電子レンジ、マイクロ波", "レーザー"]
+            },
+            {
+                word: "Order",
+                correct: "順序、命令、注文",
+                explanation: "作業や処理の順番。指示や指令。製品の購入依頼。",
+                options: ["混乱", "無秩序", "順序、命令、注文", "自由"]
+            },
+            {
+                word: "Press",
+                correct: "押す、プレス機",
+                explanation: "ボタンなどを押す動作。または、材料に圧力をかけて成形する機械。",
+                options: ["引く", "持ち上げる", "押す、プレス機", "回す"]
+            },
+            {
+                word: "Wash",
+                correct: "洗う、洗浄する",
+                explanation: "水や洗剤などを使って、汚れや不純物を取り除く作業。",
+                options: ["乾燥させる", "汚す", "洗う、洗浄する", "磨く"]
+            },
+            {
+                word: "Common",
+                correct: "一般的な、共通の",
+                explanation: "多くのものに当てはまる、広く普及している、よく見られること。",
+                options: ["珍しい", "特別な", "一般的な、共通の", "ユニークな"]
+            },
+            {
+                word: "Rainbow",
+                correct: "虹",
+                explanation: "大気中の水滴が太陽光を分散させてできる気象現象。",
+                options: ["雲", "霧", "虹", "雷"]
+            },
+            {
+                word: "Wind-power",
+                correct: "風力、風力発電",
+                explanation: "風の運動エネルギーを利用して電力を生成する技術。",
+                options: ["火力", "水力", "風力、風力発電", "太陽光"]
+            },
+            {
+                word: "Generation",
+                correct: "世代、生成、発電",
+                explanation: "特定の期間に属する人々。新しいものが作り出されること。電力の生産。",
+                options: ["消費", "破壊", "世代、生成、発電", "劣化"]
+            },
+            {
+                word: "Depend",
+                correct: "依存する、～による",
+                explanation: "ある事柄が別の事柄に左右されること。信頼すること。",
+                options: ["自立する", "独立する", "依存する、～による", "無視する"]
+            },
+            {
+                word: "Vegetables",
+                correct: "野菜",
+                explanation: "食用にされる植物の葉、茎、根、実など。食料生産や栄養学に関連。",
+                options: ["果物", "肉", "野菜", "穀物"]
+            },
+            {
+                word: "Fruit",
+                correct: "果物",
+                explanation: "植物が持つ、種子を含む甘い実。食品加工や農業に関連。",
+                options: ["野菜", "穀物", "果物", "乳製品"]
+            },
+            {
+                word: "Vitamins",
+                correct: "ビタミン",
+                explanation: "生体の正常な機能維持に少量必要な有機化合物群。栄養学や健康科学に関連。",
+                options: ["ミネラル", "タンパク質", "ビタミン", "炭水化物"]
+            },
+            {
+                word: "Develop",
+                correct: "開発する、発展させる、発育する",
+                explanation: "新しい技術や製品を創出する。能力を進歩させる。生物が成長する。",
+                options: ["停止する", "退化する", "開発する、発展させる、発育する", "維持する"]
+            },
+            {
+                word: "Fever",
+                correct: "熱、発熱",
+                explanation: "体温が異常に上昇すること。機械のオーバーヒートなど、比喩的にも使われる。",
+                options: ["冷え", "凍結", "熱、発熱", "安定"]
+            },
+            {
+                word: "Vaccination",
+                correct: "予防接種、ワクチン接種",
+                explanation: "病原体に対する免疫力を得るために、ワクチンを投与する医療行為。",
+                options: ["治療", "手術", "予防接種、ワクチン接種", "診断"]
+            },
+            {
+                word: "Inconsistent",
+                correct: "一貫性のない、矛盾した",
+                explanation: "複数のデータや情報、行動などが互いに矛盾している、または整合性がないこと。",
+                options: ["一貫性のある", "整合的な", "一貫性のない、矛盾した", "安定した"]
+            },
+            {
+                word: "Difficult",
+                correct: "困難な、難しい",
+                explanation: "達成、理解、解決などが容易ではないこと。",
+                options: ["簡単な", "単純な", "困難な、難しい", "明瞭な"]
+            },
+            {
+                word: "Predict",
+                correct: "予測する、予見する",
+                explanation: "データや知識に基づいて、将来の出来事や結果を事前に推測すること。",
+                options: ["記録する", "観察する", "予測する、予見する", "説明する"]
+            },
+
+            // --- S__26017813.jpg より ---
+            {
+                word: "Height",
+                correct: "高さ",
+                explanation: "物体の垂直方向の寸法。建築物の高さや測量などに用いられる。",
+                options: ["幅", "奥行き", "高さ", "重さ"]
+            },
+            {
+                word: "Weight",
+                correct: "重さ、重量",
+                explanation: "物体の質量に重力が作用した力。輸送や構造計算で重要。",
+                options: ["体積", "密度", "重さ、重量", "長さ"]
+            },
+            {
+                word: "Error",
+                correct: "エラー、誤差、誤り",
+                explanation: "設計、計算、システム動作などにおける間違いや、測定値と真の値とのずれ。",
+                options: ["正確さ", "正解", "エラー、誤差、誤り", "完全性"]
+            },
+            {
+                word: "Persistent",
+                correct: "持続的な、粘り強い",
+                explanation: "ある状態や行動が中断されずに続くこと。困難に屈せず続けること。",
+                options: ["一時的な", "断続的な", "持続的な、粘り強い", "脆弱な"]
+            },
+            {
+                word: "Systematic",
+                correct: "体系的な、系統的な",
+                explanation: "一定の規則や手順に従って、組織的かつ論理的に行われること。",
+                options: ["無秩序な", "ランダムな", "体系的な、系統的な", "偶発的な"]
+            },
+            {
+                word: "Coincidence",
+                correct: "偶然の一致",
+                explanation: "予期しない出来事が同時に起こること。科学的現象では見過ごせない場合がある。",
+                options: ["必然性", "因果関係", "偶然の一致", "計画"]
+            },
+            {
+                word: "Expected",
+                correct: "期待される、予期された",
+                explanation: "予測通りに発生すること。または、あるべきと見なされること。",
+                options: ["予期しない", "不確実な", "期待される、予期された", "驚くべき"]
+            },
+            {
+                word: "Ecosystems",
+                correct: "生態系",
+                explanation: "特定の環境における生物群集と、それを取り巻く非生物的環境（土壌、水など）との相互作用系。",
+                options: ["生息地", "食物連鎖", "生態系", "生物多様性"]
+            },
+            {
+                word: "Affected",
+                correct: "影響を受けた",
+                explanation: "何らかの外部要因や作用によって、状態が変化したり影響を及ぼされたりしたこと。",
+                options: ["影響を与えた", "独立した", "影響を受けた", "安定した"]
+            },
+            {
+                word: "Gas burner",
+                correct: "ガスバーナー",
+                explanation: "ガスを燃料として炎を発生させ、加熱に用いる器具。実験室や工業用途に利用。",
+                options: ["電気ヒーター", "ガスボンベ", "ガスバーナー", "ストーブ"]
+            },
+            {
+                word: "Laboratories",
+                correct: "実験室、研究所",
+                explanation: "科学的な実験、研究、試験などを行うための設備が整った施設。",
+                options: ["教室", "工場", "実験室、研究所", "病院"]
+            },
+            {
+                word: "Air valve",
+                correct: "エアバルブ、空気弁",
+                explanation: "空気の流れを制御するための弁。空圧システムやタイヤなどに使用。",
+                options: ["水栓", "燃料ポンプ", "エアバルブ、空気弁", "排気管"]
+            },
+            {
+                word: "Mixture",
+                correct: "混合物",
+                explanation: "複数の物質が化学反応を起こさずに混じり合ったもの。合金や空気など。",
+                options: ["化合物", "元素", "混合物", "純物質"]
+            },
+            {
+                word: "Uranium",
+                correct: "ウラン",
+                explanation: "原子番号92の放射性金属元素。核燃料や核兵器に用いられる。",
+                options: ["プルトニウム", "セシウム", "ウラン", "ヨウ素"]
+            },
+            {
+                word: "Heavy metal",
+                correct: "重金属",
+                explanation: "比重が比較的大きい金属元素。カドミウム、鉛、水銀など。環境汚染物質としても問題になる。",
+                options: ["軽金属", "貴金属", "重金属", "遷移金属"]
+            },
+            {
+                word: "Found",
+                correct: "見つけられた、発見された",
+                explanation: "特定の物質や現象の存在が確認されたり、探していたものが見つかったりすること。",
+                options: ["失われた", "隠された", "見つけられた、発見された", "創造された"]
+            },
+            {
+                word: "Seawater",
+                correct: "海水",
+                explanation: "海に存在する塩分を含んだ水。海洋科学や淡水化技術の対象となる。",
+                options: ["淡水", "雨水", "海水", "地下水"]
+            },
+            {
+                word: "Rocks",
+                correct: "岩石",
+                explanation: "地殻を構成する固体の鉱物集合体。地質学や土木工学で研究される。",
+                options: ["土壌", "砂", "岩石", "粘土"]
+            },
+
+            // --- S__26017814.jpg より ---
+            {
+                word: "Navigate",
+                correct: "航海する、操縦する、移動する",
+                explanation: "船や航空機などを操縦して目的地まで進むこと。または、情報空間で目的の場所を探すこと。",
+                options: ["停泊する", "漂流する", "航海する、操縦する、移動する", "沈没する"]
+            },
+            {
+                word: "Accurate",
+                correct: "正確な、精密な",
+                explanation: "情報、測定値、計算などが誤差なく、正しいこと。",
+                options: ["不正確な", "曖昧な", "正確な、精密な", "おおまかな"]
+            },
+            {
+                word: "Chart",
+                correct: "図、表、海図、チャート",
+                explanation: "数値や情報を視覚的に表現したもの。航海や航空で用いられる地図。",
+                options: ["文章", "物語", "図、表、海図、チャート", "詩"]
+            },
+            {
+                word: "Jack",
+                correct: "ジャッキ、オス型コネクタ",
+                explanation: "自動車などを持ち上げる道具。または、電気的な接続に用いるプラグ（オス側）の受け口。",
+                options: ["ハンマー", "ドライバー", "ジャッキ、オス型コネクタ", "レンチ"]
+            },
+            {
+                word: "Spare",
+                correct: "予備の、スペア",
+                explanation: "緊急時や交換のためにあらかじめ用意しておくもの。",
+                options: ["主要な", "壊れた", "予備の、スペア", "不足した"]
+            },
+            {
+                word: "Tire",
+                correct: "タイヤ、疲れる",
+                explanation: "車両の車輪を覆うゴム製の部品。または、疲労すること。",
+                options: ["ホイール", "エンジン", "タイヤ、疲れる", "ブレーキ"]
+            },
+            {
+                word: "Punctured",
+                correct: "パンクした、穴が開いた",
+                explanation: "タイヤなどに穴が開き、空気が漏れて使用不能になった状態。",
+                options: ["膨らんだ", "修理された", "パンクした、穴が開いた", "交換された"]
+            },
+            {
+                word: "Published",
+                correct: "公開された、出版された",
+                explanation: "研究成果や情報などが公式に発表され、一般に利用可能になった状態。",
+                options: ["非公開の", "秘密の", "公開された、出版された", "削除された"]
+            },
+            {
+                word: "Institution",
+                correct: "機関、施設、制度",
+                explanation: "特定の目的のために設立された組織や建物（大学、病院など）。または社会の仕組み。",
+                options: ["個人", "企業", "機関、施設、制度", "団体"]
+            },
+            {
+                word: "Near",
+                correct: "近い、近くに",
+                explanation: "物理的な距離が短いこと。または、時間的に間近であること。",
+                options: ["遠い", "離れた", "近い、近くに", "中央の"]
+            },
+            {
+                word: "Replace",
+                correct: "交換する、置き換える",
+                explanation: "既存の部品やシステムを新しいものと入れ替えること。",
+                options: ["追加する", "削除する", "交換する、置き換える", "維持する"]
+            },
+            {
+                word: "Plastic",
+                correct: "プラスチック、合成樹脂",
+                explanation: "様々な製品に利用される合成高分子材料。軽量で加工しやすい特性を持つ。",
+                options: ["金属", "ガラス", "プラスチック、合成樹脂", "木材"]
+            },
+            {
+                word: "Wastes",
+                correct: "廃棄物、無駄",
+                explanation: "不要になったもの。資源の無駄遣いや、効率の悪い部分。",
+                options: ["資源", "製品", "廃棄物、無駄", "エネルギー"]
+            },
+            {
+                word: "Harmless",
+                correct: "無害な",
+                explanation: "人体、環境、機器などに悪影響を与えないこと。",
+                options: ["有害な", "危険な", "無害な", "有毒な"]
+            },
+            {
+                word: "Substances",
+                correct: "物質",
+                explanation: "特定の物理的・化学的性質を持つもの。化学反応や材料科学の対象。",
+                options: ["概念", "情報", "物質", "エネルギー"]
+            },
+            {
+                word: "Define",
+                correct: "定義する、明確にする",
+                explanation: "言葉や概念の意味をはっきりと定めること。境界線を明確にすること。",
+                options: ["曖昧にする", "省略する", "定義する、明確にする", "推測する"]
+            },
+            {
+                word: "Obesity",
+                correct: "肥満",
+                explanation: "過剰な体脂肪の蓄積。健康問題の一つ。",
+                options: ["痩身", "健康", "肥満", "筋肉質"]
+            },
+            {
+                word: "Calculation",
+                correct: "計算",
+                explanation: "数値を処理し、結果を導き出すこと。工学や科学における基本的な作業。",
+                options: ["推測", "実験", "計算", "観測"]
+            },
+
+            // --- S__26017816.jpg より ---
+            {
+                word: "Regulate",
+                correct: "規制する、調整する",
+                explanation: "規則や法律によって管理すること。機械やシステムが適切に機能するように調整すること。",
+                options: ["解放する", "野放しにする", "規制する、調整する", "無視する"]
+            },
+            {
+                word: "Soil",
+                correct: "土壌",
+                explanation: "植物が生育する地表の表層。農業や土木工学における重要な要素。",
+                options: ["岩石", "水", "土壌", "空気"]
+            },
+            {
+                word: "Improved",
+                correct: "改善された、改良された",
+                explanation: "性能、品質、効率などが以前よりも良くなった状態。",
+                options: ["悪化した", "劣化された", "改善された、改良された", "停滞した"]
+            },
+            {
+                word: "Steam engine",
+                correct: "蒸気機関",
+                explanation: "蒸気の力でピストンを動かし、機械的エネルギーを生成する機関。産業革命の原動力。",
+                options: ["ガソリンエンジン", "電気モーター", "蒸気機関", "ディーゼルエンジン"]
+            },
+            {
+                word: "Output",
+                correct: "出力、生産高",
+                explanation: "機械やシステムから得られる結果や成果物。または、一定期間に生産される量。",
+                options: ["入力", "消費", "出力、生産高", "損失"]
+            },
+            {
+                word: "Horse",
+                correct: "馬",
+                explanation: "動物の一種。動力を表す単位「馬力 (horsepower)」の語源。",
+                options: ["牛", "羊", "馬", "犬"]
+            },
+            {
+                word: "Calculations",
+                correct: "計算",
+                explanation: "数値を処理して結果を出す作業。単数形'Calculation'と同様。",
+                options: ["分析", "設計", "計算", "検証"]
+            },
+            {
+                word: "Exact",
+                correct: "正確な、厳密な",
+                explanation: "誤差がなく、寸分たがわず正しいこと。精密な測定や計算を指す。",
+                options: ["おおまかな", "不明瞭な", "正確な、厳密な", "近似的な"]
+            },
+            {
+                word: "Process",
+                correct: "工程、プロセス",
+                explanation: "特定の目的を達成するための一連の作業や手順。製造プロセス、情報処理プロセスなど。",
+                options: ["結果", "始まり", "工程、プロセス", "目的"]
+            },
+            {
+                word: "Followed",
+                correct: "続いた、従った",
+                explanation: "時間的に後続する。指示や規則に従って行動する。",
+                options: ["先行した", "無視した", "続いた、従った", "中断した"]
+            },
+            {
+                word: "Find",
+                correct: "見つける、発見する",
+                explanation: "探していたものを見つけ出す。新たな事実や存在を明らかにする。",
+                options: ["失う", "隠す", "見つける、発見する", "創造する"]
+            },
+            {
+                word: "Speculate",
+                correct: "推測する、憶測する",
+                explanation: "確かな根拠がない状態で、ある事柄について想像したり仮説を立てたりすること。",
+                options: ["証明する", "確認する", "推測する、憶測する", "無視する"]
+            },
+            {
+                word: "But",
+                correct: "しかし、～以外",
+                explanation: "接続詞として逆接を示す。前置詞として「～を除いて」の意味。",
+                options: ["そして", "または", "しかし、～以外", "したがって"]
+            },
+            {
+                word: "Result",
+                correct: "結果、成果",
+                explanation: "何らかの作用や行動によって生じる最終的な状態や数値。",
+                options: ["原因", "要因", "結果、成果", "過程"]
+            },
+            {
+                word: "Horsepower",
+                correct: "馬力",
+                explanation: "動力の単位。エンジンなどのパワーを示すのに用いられる。",
+                options: ["電力", "速度", "馬力", "エネルギー"]
+            },
+            {
+                word: "Origin",
+                correct: "起源、発端",
+                explanation: "物事の始まりや根本となる場所、原因。",
+                options: ["終点", "結果", "起源、発端", "派生"]
+            },
+            {
+                word: "Mathematics",
+                correct: "数学",
+                explanation: "数、量、空間、変化などを抽象的に研究する学問。科学技術の基盤。",
+                options: ["物理学", "化学", "数学", "生物学"]
+            },
+            {
+                word: "Guess",
+                correct: "推測する、言い当てる",
+                explanation: "確固たる根拠がない状態で、見当をつけて答えを出すこと。",
+                options: ["計算する", "証明する", "推測する、言い当てる", "確認する"]
+            },
+
+            // --- S__26017817.jpg より ---
+            {
+                word: "Dividing",
+                correct: "分割すること、除算すること",
+                explanation: "全体をいくつか部分に分けること。または、数値を別の数値で割る算術演算。",
+                options: ["結合すること", "乗算すること", "分割すること、除算すること", "追加すること"]
+            },
+            {
+                word: "Multiplying",
+                correct: "乗算すること、増やすこと",
+                explanation: "数値を掛け合わせる算術演算。または、数量を増大させること。",
+                options: ["除算すること", "減らすこと", "乗算すること、増やすこと", "足し算すること"]
+            },
+            {
+                word: "Adding",
+                correct: "加算すること、追加すること",
+                explanation: "数値を足し合わせる算術演算。または、何かを付け加えること。",
+                options: ["引くこと", "減らすこと", "加算すること、追加すること", "削除すること"]
+            },
+            {
+                word: "Length",
+                correct: "長さ",
+                explanation: "物体や空間の一次元の大きさ。測定や設計で用いられる。",
+                options: ["幅", "高さ", "長さ", "重さ"]
+            },
+            {
+                word: "Width",
+                correct: "幅",
+                explanation: "物体の横方向の寸法。設計や製造で用いられる。",
+                options: ["長さ", "高さ", "幅", "深さ"]
+            },
+            {
+                word: "Climate",
+                correct: "気候",
+                explanation: "特定の地域の長期的な気象条件。環境問題や農業計画に関連。",
+                options: ["天気", "気温", "湿度", "気候"]
+            },
+            {
+                word: "Affect",
+                correct: "影響を与える",
+                explanation: "あるものが他のものに変化や効果をもたらすこと。",
+                options: ["無視する", "安定させる", "影響を与える", "予防する"]
+            },
+            {
+                word: "Extreme",
+                correct: "極端な",
+                explanation: "程度が非常に激しいこと。極端な温度や圧力など。",
+                options: ["中程度の", "穏やかな", "極端な", "平均的な"]
+            },
+            {
+                word: "Weather",
+                correct: "気象、天気",
+                explanation: "ある時点や場所における大気の状態。日々の予報や災害対策に関わる。",
+                options: ["気候", "季節", "気象、天気", "地形"]
+            },
+            {
+                word: "Accurate",
+                correct: "正確な、精密な",
+                explanation: "情報、測定、計算などが誤差なく、真の値に近いこと。",
+                options: ["不正確な", "曖昧な", "正確な、精密な", "おおまかな"]
+            },
+            {
+                word: "Active",
+                correct: "活動的な、能動的な",
+                explanation: "活発に機能していること。受動的ではなく自ら働きかける状態。",
+                options: ["受動的な", "休止中の", "活動的な、能動的な", "停止した"]
+            },
+            {
+                word: "Action",
+                correct: "行動、作用",
+                explanation: "何かを行うこと。機械や化学物質が働きかけること。",
+                options: ["思考", "計画", "行動、作用", "結果"]
+            },
+            {
+                word: "Volcanoes",
+                correct: "火山",
+                explanation: "地下のマグマが噴出する地球の地形。地質学や防災の対象。",
+                options: ["山脈", "湖", "火山", "平野"]
+            },
+            {
+                word: "Turned on",
+                correct: "電源が入った、作動した",
+                explanation: "スイッチが入れられ、機器やシステムが動作状態になったこと。",
+                options: ["電源が切れた", "停止した", "電源が入った、作動した", "分解された"]
+            },
+            {
+                word: "Forests",
+                correct: "森林",
+                explanation: "樹木が密集して広がる地域。生態系や資源として重要。",
+                options: ["砂漠", "草原", "森林", "都市"]
+            },
+            {
+                word: "Decreasing",
+                correct: "減少している",
+                explanation: "数量や程度が徐々に小さくなっている状態。",
+                options: ["増加している", "安定している", "減少している", "変動している"]
+            },
+            {
+                word: "Climbing",
+                correct: "登ること、上昇すること",
+                explanation: "高い場所へ移動すること。または、数値や価格が上がっていくこと。",
+                options: ["降りること", "下降すること", "登ること、上昇すること", "横ばいになること"]
+            },
+            {
+                word: "Producing",
+                correct: "生産している、製造している",
+                explanation: "製品やエネルギーなどを作り出している状態。",
+                options: ["消費している", "分解している", "生産している、製造している", "保管している"]
+            },
+
+            // --- S__26017819.jpg より ---
+            {
+                word: "Prepared",
+                correct: "準備された、用意ができた",
+                explanation: "ある活動や事態のために必要なものが整っている状態。",
+                options: ["未準備の", "放棄された", "準備された、用意ができた", "即興の"]
+            },
+            {
+                word: "Natural",
+                correct: "自然の、天然の",
+                explanation: "人間が手を加えていない、自然界に存在するそのままの状態。",
+                options: ["人工の", "合成の", "自然の、天然の", "加工された"]
+            },
+            {
+                word: "Disasters",
+                correct: "災害",
+                explanation: "自然現象（地震、洪水、台風など）や人為的要因によって引き起こされる大規模な被害。",
+                options: ["祭り", "祝祭", "災害", "イベント"]
+            },
+            {
+                word: "Anger",
+                correct: "怒り",
+                explanation: "感情の一つ。対人関係や心理学の文脈で使用される。",
+                options: ["喜び", "悲しみ", "怒り", "驚き"]
+            },
+            {
+                word: "Environment",
+                correct: "環境",
+                explanation: "生物を取り巻く外部の条件全体。自然環境、社会環境など。",
+                options: ["内部", "中心", "環境", "個体"]
+            },
+            {
+                word: "Including",
+                correct: "含んでいる",
+                explanation: "あるグループや範囲の中に、特定の要素が含まれていること。",
+                options: ["除外して", "無視して", "含んでいる", "分離して"]
+            },
+            {
+                word: "Earthquakes",
+                correct: "地震",
+                explanation: "地盤が揺れる自然現象。耐震設計や防災の対象。",
+                options: ["火山噴火", "津波", "地震", "洪水"]
+            },
+            {
+                word: "Floods",
+                correct: "洪水",
+                explanation: "大雨などにより河川が氾濫したり、低地が水浸しになったりする自然災害。",
+                options: ["干ばつ", "津波", "洪水", "土砂崩れ"]
+            },
+            {
+                word: "Typhoons",
+                correct: "台風",
+                explanation: "熱帯低気圧が発達した強い嵐。気象予測や防災の対象。",
+                options: ["ハリケーン", "サイクロン", "台風", "竜巻"]
+            },
+            {
+                word: "Bio-based",
+                correct: "バイオベースの、生物由来の",
+                explanation: "植物などの再生可能な生物資源を原料としていること。環境配慮型の製品に関連。",
+                options: ["石油由来の", "鉱物由来の", "バイオベースの、生物由来の", "化学合成の"]
+            },
+            {
+                word: "Plastics",
+                correct: "プラスチック、合成樹脂",
+                explanation: "合成高分子材料の総称。容器、部品、包装材など広範囲に使用される。",
+                options: ["金属", "ガラス", "プラスチック、合成樹脂", "セラミックス"]
+            },
+            {
+                word: "Plants",
+                correct: "植物、工場（複数形）",
+                explanation: "光合成を行う生物。または、製造工場や発電所などの施設（複数形）。",
+                options: ["動物", "菌類", "植物、工場（複数形）", "微生物"]
+            },
+            {
+                word: "Regardless",
+                correct: "～にもかかわらず、関係なく",
+                explanation: "特定の条件や状況を考慮に入れないこと。",
+                options: ["～を考慮して", "～に応じて", "～にもかかわらず、関係なく", "～の結果として"]
+            },
+            {
+                word: "Fossil",
+                correct: "化石",
+                explanation: "地層中に残された、動植物の遺骸や痕跡。地質学や古生物学の研究対象。",
+                options: ["鉱物", "岩石", "化石", "現生生物"]
+            },
+            {
+                word: "Fuels",
+                correct: "燃料",
+                explanation: "燃焼などによってエネルギーを取り出すことができる物質。ガソリン、石炭など。",
+                options: ["水", "空気", "燃料", "電気"]
+            },
+            {
+                word: "Area",
+                correct: "面積、地域",
+                explanation: "平面上の広さ。または、特定の地理的範囲。",
+                options: ["点", "線", "面積、地域", "体積"]
+            },
+            {
+                word: "Rectangle",
+                correct: "長方形",
+                explanation: "四つの角が直角である四角形。設計や図形問題で用いられる。",
+                options: ["円", "三角形", "長方形", "正方形"]
+            },
+            {
+                word: "Calculate",
+                correct: "計算する",
+                explanation: "数値を処理して結果を導き出すこと。",
+                options: ["推測する", "想像する", "計算する", "観察する"]
+            },
+
+            // --- S__26017820.jpg より ---
+            {
+                word: "Instruments",
+                correct: "計測器、機器、楽器",
+                explanation: "物理量を測定する装置。または、特定の作業を行うための道具や器具。",
+                options: ["材料", "部品", "計測器、機器、楽器", "理論"]
+            },
+            {
+                word: "Tools",
+                correct: "道具、工具",
+                explanation: "作業を行うために手で扱う器具。ソフトウェアツールも指す。",
+                options: ["機械", "材料", "道具、工具", "製品"]
+            },
+            {
+                word: "Flagpole",
+                correct: "旗竿",
+                explanation: "旗を掲げるための棒。構造物の一部。",
+                options: ["柱", "電柱", "旗竿", "棒"]
+            },
+            {
+                word: "Depending",
+                correct: "～に依存している、～次第で",
+                explanation: "ある事柄が他の事柄によって決まる、または左右されること。",
+                options: ["～から独立している", "～を無視して", "～に依存している、～次第で", "～と関係なく"]
+            },
+            {
+                word: "Analyze",
+                correct: "分析する",
+                explanation: "複雑なものを要素に分解し、その構造や性質、関係性を詳細に調べること。",
+                options: ["合成する", "結合する", "分析する", "無視する"]
+            },
+            {
+                word: "Receive orders",
+                correct: "指示を受ける、注文を受ける",
+                explanation: "上位者からの命令を受け取る。または、顧客から製品の購入依頼を受け取る。",
+                options: ["指示を出す", "注文する", "指示を受ける、注文を受ける", "報告する"]
+            },
+            {
+                word: "Exchange information",
+                correct: "情報を交換する",
+                explanation: "異なる間で情報を受け渡しすること。コミュニケーションの基本。",
+                options: ["情報を隠す", "情報を保存する", "情報を交換する", "情報を破棄する"]
+            },
+            {
+                word: "Orbit",
+                correct: "軌道、周回する",
+                explanation: "天体が別の天体の周りを回る経路。または、そのように周回する動作。",
+                options: ["直線", "停止", "軌道、周回する", "発射"]
+            },
+            {
+                word: "Space",
+                correct: "宇宙、空間、場所",
+                explanation: "地球外の広大な空間。または、物理的な広がりや特定の場所。",
+                options: ["時間", "物質", "宇宙、空間、場所", "エネルギー"]
+            },
+            {
+                word: "Equipment",
+                correct: "設備、備品",
+                explanation: "特定の目的のために必要な機械、器具、道具などの一式。",
+                options: ["材料", "部品", "設備、備品", "製品"]
+            },
+            {
+                word: "Indicate",
+                correct: "示す、指摘する",
+                explanation: "何かを指し示す。特定の情報や状況を示唆する。",
+                options: ["隠す", "不明瞭にする", "示す、指摘する", "否定する"]
+            }
+            // S__26017816.jpgの "Length" は重複するので除外（ただし、もし誤訳があれば修正）
+            // S__26017816.jpgの "Indicate" も重複するので除外
+        ];
+
+        let shuffledQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOptionValue = null; // ユーザーが選択したオプションの値を保持
+
+        // DOM要素の取得
+        const questionWordElement = document.getElementById('question-word');
+        const optionsContainer = document.getElementById('options-container');
+        const checkAnswerBtn = document.getElementById('check-answer-btn');
+        const showExplanationBtn = document.getElementById('show-explanation-btn');
+        const nextQuestionBtn = document.getElementById('next-question-btn');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const explanationText = document.getElementById('explanation-text');
+        const quizArea = document.getElementById('quiz-area');
+        const finalResultsArea = document.getElementById('final-results');
+        const scoreDisplay = document.getElementById('score-display');
+        const totalQuestionsDisplay = document.getElementById('total-questions-display');
+        const restartQuizBtn = document.getElementById('restart-quiz-btn');
+
+        // 問題のシャッフル
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // クイズの初期化・開始
+        function startQuiz() {
+            shuffledQuestions = shuffleArray([...wordData]); // 元のデータをコピーしてシャッフル
+            currentQuestionIndex = 0;
+            score = 0;
+            quizArea.style.display = 'block';
+            finalResultsArea.style.display = 'none';
+            displayQuestion();
+        }
+
+        // 問題表示
+        function displayQuestion() {
+            resetUI(); // UIの状態をリセット
+            if (currentQuestionIndex < shuffledQuestions.length) {
+                const currentQ = shuffledQuestions[currentQuestionIndex];
+                questionWordElement.textContent = currentQ.word;
+
+                optionsContainer.innerHTML = ''; // 選択肢をクリア
+                const shuffledOptions = shuffleArray([...currentQ.options]); // 選択肢もシャッフル
+
+                shuffledOptions.forEach((option, index) => {
+                    const label = document.createElement('label');
+                    const input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = 'answerOption';
+                    input.value = option;
+                    input.addEventListener('change', (e) => {
+                        selectedOptionValue = e.target.value;
+                        checkAnswerBtn.disabled = false; // 選択されたら答え合わせボタンを有効に
+                    });
+                    
+                    label.appendChild(input);
+                    label.appendChild(document.createTextNode(option));
+                    optionsContainer.appendChild(label);
+                });
+
+                checkAnswerBtn.disabled = true; // 最初の問題表示時は答え合わせボタンを無効に
+            } else {
+                showFinalResults();
+            }
+        }
+
+        // UIの状態をリセットする
+        function resetUI() {
+            feedbackMessage.textContent = '';
+            feedbackMessage.className = 'result'; // クラスをリセット
+            explanationText.style.display = 'none';
+            checkAnswerBtn.style.display = 'block';
+            showExplanationBtn.style.display = 'none';
+            nextQuestionBtn.style.display = 'none';
+            selectedOptionValue = null; // 選択をリセット
+        }
+
+        // 答え合わせ
+        function checkAnswer() {
+            if (selectedOptionValue === null) {
+                feedbackMessage.textContent = '⚠️ 選択肢を選んでください！';
+                feedbackMessage.className = 'result incorrect-answer-feedback'; // 赤文字
+                return;
+            }
+
+            const currentQ = shuffledQuestions[currentQuestionIndex];
+            if (selectedOptionValue === currentQ.correct) {
+                score++;
+                feedbackMessage.textContent = '✅ 正解！';
+                feedbackMessage.className = 'result correct-answer-feedback'; // 緑文字
+            } else {
+                feedbackMessage.textContent = '❌ 不正解。';
+                feedbackMessage.className = 'result incorrect-answer-feedback'; // 赤文字
+            }
+
+            // 全てのラジオボタンを無効化
+            Array.from(optionsContainer.querySelectorAll('input[type="radio"]')).forEach(radio => {
+                radio.disabled = true;
+            });
+
+            // ボタンの表示/非表示を切り替え
+            checkAnswerBtn.style.display = 'none';
+            showExplanationBtn.style.display = 'block';
+            nextQuestionBtn.style.display = 'block';
+        }
+
+        // 解説表示
+        function showExplanation() {
+            const currentQ = shuffledQuestions[currentQuestionIndex];
+            explanationText.innerHTML = `**正しい和訳:** ${currentQ.correct}<br>**解説:** ${currentQ.explanation}`;
+            explanationText.style.display = 'block';
+        }
+
+        // 次の問題へ
+        function goToNextQuestion() {
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+
+        // 最終結果表示
+        function showFinalResults() {
+            quizArea.style.display = 'none';
+            finalResultsArea.style.display = 'block';
+            scoreDisplay.textContent = score;
+            totalQuestionsDisplay.textContent = shuffledQuestions.length;
+        }
+
+        // イベントリスナーの設定
+        checkAnswerBtn.addEventListener('click', checkAnswer);
+        showExplanationBtn.addEventListener('click', showExplanation);
+        nextQuestionBtn.addEventListener('click', goToNextQuestion);
+        restartQuizBtn.addEventListener('click', startQuiz);
+
+        // アプリ起動時にクイズを開始
+        startQuiz();
+    </script>
+</body>
+</html>
